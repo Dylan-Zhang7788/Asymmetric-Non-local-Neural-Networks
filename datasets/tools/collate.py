@@ -9,7 +9,8 @@ import collections
 import torch
 import torch.nn.functional as F
 from torch.utils.data.dataloader import default_collate
-from torch._six import string_classes, int_classes
+int_classes = int
+string_classes = str
 
 from extensions.tools.parallel import DataContainer
 from utils.helpers.tensor_helper import TensorHelper

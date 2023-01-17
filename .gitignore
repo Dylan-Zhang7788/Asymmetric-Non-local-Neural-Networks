@@ -1,2 +1,5 @@
 .idea
 data
+checkpoints
+log
+__pycache__
