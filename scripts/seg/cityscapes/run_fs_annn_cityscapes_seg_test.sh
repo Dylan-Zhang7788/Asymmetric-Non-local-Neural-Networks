@@ -55,10 +55,10 @@ elif [ "$1"x == "val"x ]; then
                                        --gt_dir ${DATA_DIR}/val/label  2>&1 | tee -a ${LOG_FILE}
 
 elif [ "$1"x == "test"x ]; then
-  ${PYTHON} -u main.py --hypes ${HYPES_FILE} --phase test --gpu 0 1 2 3 4 5 6 7 --log_to_file n --gathered n \
+  ${PYTHON} -u main.py --hypes ${HYPES_FILE} --phase test --gpu 0 --log_to_file n --gathered n \
                        --backbone ${BACKBONE} --model_name ${MODEL_NAME} --checkpoints_name ${CHECKPOINTS_NAME} \
                        --resume ./checkpoints/seg/${DATASET}/${CHECKPOINTS_NAME}_latest.pth \
-                       --test_dir /share/${DATASET}/leftImg8bit/test --out_dir test 2>&1 | tee -a ${LOG_FILE}
+                       --test_dir ./data/DataSet/Cityscapes/leftImg8bit/test --out_dir test 2>&1 | tee -a ${LOG_FILE}
 
 else
   echo "$1"x" is invalid..."
