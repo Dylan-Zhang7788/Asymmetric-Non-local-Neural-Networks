@@ -42,6 +42,7 @@ class _SelfAttentionBlock(nn.Module):
         N X C X H X W
         position-aware context features.(w/o concate or add with the input)
     '''
+    # 本项目中，low_in_channels=1024 high_in_channels=2048 key_channels=256 value_channels=256 out_channels=2048 size=1
     def __init__(self, low_in_channels, high_in_channels, key_channels, value_channels, out_channels=None, scale=1, norm_type=None,psp_size=(1,3,6,8)):
         super(_SelfAttentionBlock, self).__init__()
         self.scale = scale
@@ -51,19 +52,24 @@ class _SelfAttentionBlock(nn.Module):
         self.value_channels = value_channels
         if out_channels == None:
             self.out_channels = high_in_channels
+        # 本项目中 nn.MaxPool2d(kernel_size=(1,1))
         self.pool = nn.MaxPool2d(kernel_size=(scale, scale))
+        # 本项目中 nn.Conv2d(in_channels=1024,out_channels=256)
         self.f_key = nn.Sequential(
             nn.Conv2d(in_channels=self.in_channels, out_channels=self.key_channels,
                       kernel_size=1, stride=1, padding=0),
             ModuleHelper.BNReLU(self.key_channels, norm_type=norm_type),
         )
+        # 本项目中 nn.Conv2d(in_channels=2048,out_channels=256)
         self.f_query = nn.Sequential(
             nn.Conv2d(in_channels=high_in_channels, out_channels=self.key_channels,
                       kernel_size=1, stride=1, padding=0),
             ModuleHelper.BNReLU(self.key_channels, norm_type=norm_type),
         )
+        # 本项目中 nn.Conv2d(in_channels=1024,out_channels=256)
         self.f_value = nn.Conv2d(in_channels=self.in_channels, out_channels=self.value_channels,
                                  kernel_size=1, stride=1, padding=0)
+        # 本项目中 nn.Conv2d(in_channels=256,out_channels=2048)
         self.W = nn.Conv2d(in_channels=self.value_channels, out_channels=self.out_channels,
                            kernel_size=1, stride=1, padding=0)
 
@@ -124,6 +130,7 @@ class AFNB(nn.Module):
         self.stages = []
         self.norm_type = norm_type
         self.psp_size=psp_size
+        # 本项目中，low_in_channels=1024 high_in_channels=2048 out_channels=2048 key_channels=256 value_channels=256 size=1
         self.stages = nn.ModuleList(
             [self._make_stage([low_in_channels, high_in_channels], out_channels, key_channels, value_channels, size) for
              size in sizes])

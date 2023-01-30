@@ -33,7 +33,8 @@ class asymmetric_non_local_network(nn.Sequential):
         )
        
     def forward(self, x_):
-        x = self.backbone(x_)
+        # x_: [1,3,1024,2048] 这个东西就是原图
+        x = self.backbone(x_) # x: 4*[1,256,257,513]
         aux_x = self.dsn(x[-2])
         x = self.fusion(x[-2], x[-1])
         x = self.context(x)
