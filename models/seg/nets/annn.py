@@ -34,8 +34,11 @@ class asymmetric_non_local_network(nn.Sequential):
        
     def forward(self, x_):
         # x_: [1,3,1024,2048] 这个东西就是原图
-        x = self.backbone(x_) # x: 4*[1,256,257,513]
+        # x 有4个tensor 分别是4个阶段的输出
+        # 4个tensor分别为: [1,256,257,513] [1,512,129,257] [1,1024,129,257] [1,2048,129,257]
+        x = self.backbone(x_)
         aux_x = self.dsn(x[-2])
+        # 把最后一个阶段和倒数第二个阶段的拿来混合
         x = self.fusion(x[-2], x[-1])
         x = self.context(x)
         x = self.cls(x)

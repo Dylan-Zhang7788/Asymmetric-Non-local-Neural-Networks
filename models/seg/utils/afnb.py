@@ -72,12 +72,14 @@ class _SelfAttentionBlock(nn.Module):
         # 本项目中 nn.Conv2d(in_channels=256,out_channels=2048)
         self.W = nn.Conv2d(in_channels=self.value_channels, out_channels=self.out_channels,
                            kernel_size=1, stride=1, padding=0)
-
+        # psp_size: tuple:(1,3,6,8)
         self.psp = PSPModule(psp_size)
         nn.init.constant_(self.W.weight, 0)
         nn.init.constant_(self.W.bias, 0)
 
-    def forward(self, low_feats, high_feats):
+    def forward(self, low_feats, high_feats): 
+        # 本项目中 low_feats 是倒数第二阶段的输出[1,1024,129,257]
+        # high_feats 是倒数第一阶段的输出[1,2048,129,257]
         batch_size, h, w = high_feats.size(0), high_feats.size(2), high_feats.size(3)
         # if self.scale > 1:
         #     x = self.pool(x)
