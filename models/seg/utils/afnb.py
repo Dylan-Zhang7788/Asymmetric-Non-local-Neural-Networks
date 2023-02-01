@@ -22,8 +22,12 @@ class PSPModule(nn.Module):
         return prior
 
     def forward(self, feats):
+        # feats: [1,256,129,257]
         n, c, _, _ = feats.size()
+        # 分别将特征图池化为1*1 3*3 6*6 8*8，然后铺平（看笔记）
+        feats_r= [stage(feats) for stage in self.stages]
         priors = [stage(feats).view(n, c, -1) for stage in self.stages]
+        # 首尾相连一下
         center = torch.cat(priors, -1)
         return center
 
@@ -84,15 +88,17 @@ class _SelfAttentionBlock(nn.Module):
         # if self.scale > 1:
         #     x = self.pool(x)
 
+        # 这里的self.f_value是一个1*1卷积，作用是把通道变成256
         value = self.psp(self.f_value(low_feats))
-
-        query = self.f_query(high_feats).view(batch_size, self.key_channels, -1)
-        query = query.permute(0, 2, 1)
-        key = self.f_key(low_feats)
-        # value=self.psp(value)#.view(batch_size, self.value_channels, -1)
         value = value.permute(0, 2, 1)
-        key = self.psp(key)  # .view(batch_size, self.key_channels, -1)
-        sim_map = torch.matmul(query, key)
+        key = self.psp(self.f_key(low_feats))
+
+        # 这里的self.f_query是一个1*1卷积，作用是把通道变成256
+        # 执行完卷积之后，再把它展平
+        query = self.f_query(high_feats).view(batch_size, self.key_channels, -1)
+        query = query.permute(0, 2, 1) # 为了后面的相乘
+        
+        sim_map = torch.matmul(query, key) # 张量（矩阵）相乘
         sim_map = (self.key_channels ** -.5) * sim_map
         sim_map = F.softmax(sim_map, dim=-1)
 
